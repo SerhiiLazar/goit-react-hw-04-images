@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { Loader } from './Loader/Loader';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,102 +9,95 @@ import { ImageGallery } from './ImageGallery';
 import { Modal } from './Modal';
 import Button from './Button';
 
-class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    loadMore: false,
-    isLoading: false,
-    error: false,
-    totalImages: 0,
-    totalPage: 0,
-    showModal: false,
-    imagesModal: null,
-  };
+function App() {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState('');
+  const [images, setImages] = useState([]);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [imagesModal, setImagesModal] = useState(null);
 
-  async componentDidUpdate(_, prevState) {
-    const prevQuery = prevState.query;
-    const nextQuery = this.state.query;
-
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
-
-    if (prevPage !== nextPage || prevQuery !== nextQuery) {
+  useEffect(() => {
+    async function fetchImages() {
       try {
-        this.setState({ isLoading: true });
+        setIsLoading(true);
 
-        const images = await API.fetchImages(nextQuery, nextPage);
+        const images = await API.fetchImages(query, page);
 
-        this.setState(prevState => ({
-          images: [...prevState.images, ...images.hits],
-          totalImages: images.totalHits,
-          totalPage: Math.ceil(images.totalHits / API.perPage),
-          isLoading: false,
-        }));
-
+        setImages(prevState => [...prevState, ...images.hits])
+        setIsLoading(false)
+        setIsLoadMore(false)
+        
         if (images.total === 0) {
           toast('Please try again');
-          this.setState({ loadMore: false });
+          setIsLoadMore(false);
           return;
         }
 
         if (images.totalHits > API.perPage) {
-          this.setState({ loadMore: true, isLoading: false });
+          setIsLoading(false);
+          setIsLoadMore(true);
         }
 
-        if (nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
-          this.setState({ isLoading: false, loadMore: false });
+        if (page + 1 > Math.ceil(images.totalHits / API.perPage)) {
+          setIsLoading(false);
+          setIsLoadMore(false);
         }
 
-        if (nextPage >= Math.ceil(images.totalHits / API.perPage)) {
-          this.setState({ isLoading: false, loadMore: false });
+        if (page >= Math.ceil(images.totalHits / API.perPage)) {
+          setIsLoading(false);
+          setIsLoadMore(false);
         }
+    
+        
       } catch (error) {
-        this.setState({ isLoading: false, error: true });
+        toast('error')
+        setIsLoading(false);
       }
     }
-  }
-
-  hendleSubmitForm = ({ query }) => {
-    this.setState({ page: 1, query: query, images: [] });
-    if (this.state.query === query) {
-      toast('You have not entered anything, please enter!');
-      this.setState({ isLoading: false, loadMore: false });
-      return;
-    }
+    fetchImages();
+    },[query, page])
+ 
+  const hendleSubmitForm = ({query}) => {
+    setPage(1);
+    setQuery(query);
+    setImages([]);
+    // if(query === '') {
+      
+    //   toast('You have not entered anything, please enter!!!!');
+    //   setIsLoading(false);
+    //   setIsLoadMore(false);
+      
+    // }
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  const toggleModal = () => {
+    setShowModal(showModal  => !showModal);
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const loadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  modaImgClick = (largeImageURL, tags) => {
-    this.toggleModal();
-    this.setState({ imagesModal: { largeImageURL, tags } });
+  const modaImgClick = (largeImageURL, tags) => {
+    toggleModal();
+    setImagesModal({largeImageURL, tags});
   };
 
-  render() {
-    const submitForm = this.hendleSubmitForm;
-    const { isLoading, images, loadMore, showModal, imagesModal } = this.state;
+
     return (
       <div className={css.App}>
-        <Searchbar onSubmit={submitForm} />
-        <ImageGallery images={images} onClick={this.modaImgClick} />
+        <Searchbar onSubmit={hendleSubmitForm} />
+        <ImageGallery images={images} onClick={modaImgClick} />
         {showModal && (
           <Modal
-            onClose={this.toggleModal}
+            onClose={toggleModal}
             largeImageURL={imagesModal.largeImageURL}
             tags={imagesModal.tags}
           />
         )}
-        {loadMore && <Button loadMoreFetch={this.loadMore} />}
+        {isLoadMore && <Button loadMoreFetch={loadMore} />}
         <Loader isLoading={isLoading} />
 
         <ToastContainer
@@ -122,6 +115,5 @@ class App extends Component {
       </div>
     );
   }
-}
 
 export default App;

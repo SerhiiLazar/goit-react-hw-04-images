@@ -1,36 +1,33 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import css from './Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
-export class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.hendleKeyDown);
-  }
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.hendleKeyDown);
-  }
 
-  hendleKeyDown = e => {
-    if (e.code === 'Escape') {
-      this.props.onClose();
-    }
-  };
-
-  hendleBackdropClose = e => {
+export function Modal({onClose, largeImageURL, tags}) {
+  
+  useEffect(() => {
+    const hendleKeyDown = e => {
+      if (e.code === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', hendleKeyDown);
+    
+    return() => {window.removeEventListener('keydown', hendleKeyDown)};
+  }, [onClose])
+  
+  const hendleBackdropClose = e => {
     if (e.currentTarget === e.target) {
-      this.props.onClose();
+      onClose();
     }
   };
 
-  render() {
-    const { largeImageURL, tags } = this.props;
-
-    return createPortal(
-      <div className={css.Overlay} onClick={this.hendleBackdropClose}>
+  return createPortal(
+      <div className={css.Overlay} onClick={hendleBackdropClose}>
         <div className={css.Modal}>
           <img src={largeImageURL} alt={tags} />
         </div>
@@ -38,7 +35,7 @@ export class Modal extends Component {
       modalRoot
     );
   }
-}
+
 
 Modal.propTypes = {
   largeImageURL: PropTypes.string.isRequired,

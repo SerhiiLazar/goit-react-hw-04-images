@@ -1,38 +1,28 @@
 import PropTypes from 'prop-types';
-import { Component } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import css from './Searchbar.module.css';
 
-export class Searchbar extends Component {
-  state = {
-    query: '',
-  };
-
-  hendleSubmit = event => {
+export function Searchbar({ onSubmit }) {
+  const [query, setQuery] = useState('');
+ 
+  const hendleSubmit = event => {
     event.preventDefault();
 
-    const { onSubmit } = this.props;
-
-    if (this.state.query === '') {
+    if (query === '') {
       toast('You have not entered anything, please enter!');
       return;
     }
-
-    onSubmit(this.state);
+    onSubmit(query);
     event.target.reset();
   };
 
-  hendleChange = event => {
+  const hendleChange = event => {
     const { name, value } = event.target;
-    this.setState({ [name]: value.trim() });
+    setQuery({ [name]: value.trim() });
   };
 
-  render() {
-    // const {query} = this.state.query;
-    const hendleChange = this.hendleChange;
-    const hendleSubmit = this.hendleSubmit;
-
-    return (
+  return (
       <header className={css.Searchbar}>
         <form className={css.SearchForm} onSubmit={hendleSubmit}>
           <button type="submit" className={css.SearchFormButton}>
@@ -53,7 +43,7 @@ export class Searchbar extends Component {
       </header>
     );
   }
-}
+
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,
