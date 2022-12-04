@@ -19,16 +19,20 @@ function App() {
   const [imagesModal, setImagesModal] = useState(null);
 
   useEffect(() => {
+    if (query === '') {
+      return;
+    }
+
     async function fetchImages() {
       try {
         setIsLoading(true);
 
         const images = await API.fetchImages(query, page);
 
-        setImages(prevState => [...prevState, ...images.hits])
-        setIsLoading(false)
-        setIsLoadMore(false)
-        
+        setImages(prevState => [...prevState, ...images.hits]);
+        setIsLoading(false);
+        setIsLoadMore(false);
+
         if (images.total === 0) {
           toast('Please try again');
           setIsLoadMore(false);
@@ -49,71 +53,61 @@ function App() {
           setIsLoading(false);
           setIsLoadMore(false);
         }
-    
-        
       } catch (error) {
-        toast('error')
+        toast('error');
         setIsLoading(false);
       }
     }
     fetchImages();
-    },[query, page])
- 
-  const hendleSubmitForm = ({query}) => {
+  }, [query, page]);
+
+  const hendleSubmitForm = ({ query }) => {
     setPage(1);
     setQuery(query);
     setImages([]);
-    // if(query === '') {
-      
-    //   toast('You have not entered anything, please enter!!!!');
-    //   setIsLoading(false);
-    //   setIsLoadMore(false);
-      
-    // }
   };
 
   const toggleModal = () => {
-    setShowModal(showModal  => !showModal);
+    setShowModal(showModal => !showModal);
   };
 
   const loadMore = () => {
     setPage(prevState => prevState + 1);
   };
 
-  const modaImgClick = (largeImageURL, tags) => {
+  const modalImgClick = (largeImageURL, tags) => {
     toggleModal();
-    setImagesModal({largeImageURL, tags});
+    setImagesModal({ largeImageURL, tags });
   };
 
-
-    return (
-      <div className={css.App}>
-        <Searchbar onSubmit={hendleSubmitForm} />
-        <ImageGallery images={images} onClick={modaImgClick} />
-        {showModal && (
-          <Modal
-            onClose={toggleModal}
-            largeImageURL={imagesModal.largeImageURL}
-            tags={imagesModal.tags}
-          />
-        )}
-        {isLoadMore && <Button loadMoreFetch={loadMore} />}
-        <Loader isLoading={isLoading} />
-
-        <ToastContainer
-          position="top-center"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
+  return (
+    <div className={css.App}>
+      <Searchbar onSubmit={hendleSubmitForm} />
+      <ImageGallery images={images} onClick={modalImgClick} />
+      {showModal && (
+        <Modal
+          onClose={toggleModal}
+          largeImageURL={imagesModal.largeImageURL}
+          tags={imagesModal.tags}
         />
-      </div>
-    );
-  }
+      )}
+      {isLoadMore && <Button loadMoreFetch={loadMore} />}
+      <Loader isLoading={isLoading} />
+
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+    </div>
+  );
+}
 
 export default App;

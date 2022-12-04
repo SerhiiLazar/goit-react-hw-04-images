@@ -5,10 +5,7 @@ import css from './Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
-
-
-export function Modal({onClose, largeImageURL, tags}) {
-  
+export function Modal({ onClose, largeImageURL, tags }) {
   useEffect(() => {
     const hendleKeyDown = e => {
       if (e.code === 'Escape') {
@@ -16,10 +13,12 @@ export function Modal({onClose, largeImageURL, tags}) {
       }
     };
     window.addEventListener('keydown', hendleKeyDown);
-    
-    return() => {window.removeEventListener('keydown', hendleKeyDown)};
-  }, [onClose])
-  
+
+    return () => {
+      window.removeEventListener('keydown', hendleKeyDown);
+    };
+  }, [onClose]);
+
   const hendleBackdropClose = e => {
     if (e.currentTarget === e.target) {
       onClose();
@@ -27,18 +26,17 @@ export function Modal({onClose, largeImageURL, tags}) {
   };
 
   return createPortal(
-      <div className={css.Overlay} onClick={hendleBackdropClose}>
-        <div className={css.Modal}>
-          <img src={largeImageURL} alt={tags} />
-        </div>
-      </div>,
-      modalRoot
-    );
-  }
-
+    <div className={css.Overlay} onClick={hendleBackdropClose}>
+      <div className={css.Modal}>
+        <img src={largeImageURL} alt={tags} />
+      </div>
+    </div>,
+    modalRoot
+  );
+}
 
 Modal.propTypes = {
   largeImageURL: PropTypes.string.isRequired,
   tags: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
-}
+};

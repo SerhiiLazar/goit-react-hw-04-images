@@ -5,7 +5,7 @@ import css from './Searchbar.module.css';
 
 export function Searchbar({ onSubmit }) {
   const [query, setQuery] = useState('');
- 
+
   const hendleSubmit = event => {
     event.preventDefault();
 
@@ -23,28 +23,27 @@ export function Searchbar({ onSubmit }) {
   };
 
   return (
-      <header className={css.Searchbar}>
-        <form className={css.SearchForm} onSubmit={hendleSubmit}>
-          <button type="submit" className={css.SearchFormButton}>
-            <span className={css.SearchFormButtonLabel}></span>
-          </button>
+    <header className={css.Searchbar}>
+      <form className={css.SearchForm} onSubmit={hendleSubmit}>
+        <button type="submit" className={css.SearchFormButton}>
+          <span className={css.SearchFormButtonLabel}></span>
+        </button>
 
-          <input
-            className={css.SearchFormInput}
-            type="text"
-            name="query"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            // value={query}
-            onChange={hendleChange}
-          />
-        </form>
-      </header>
-    );
-  }
-
+        <input
+          className={css.SearchFormInput}
+          type="text"
+          name="query"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          // value={query}
+          onChange={hendleChange}
+        />
+      </form>
+    </header>
+  );
+}
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-}
+};
